@@ -1,6 +1,6 @@
 # Bookdown to Quarto Conversion Guide
 
-Based on the TMwR conversion experience, this guide provides a systematic approach to converting bookdown books to Quarto format.
+Based on the [TMwR](https://www.tmwr.org/) and [FES](https://www.feat.engineering/) conversion experiences, this guide provides a systematic approach to converting bookdown books to Quarto format.
 
 ## Overview
 
