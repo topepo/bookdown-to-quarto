@@ -212,44 +212,6 @@ for file in *.qmd; do
 done
 ```
 
-### Custom callout styling (optional)
-
-To preserve custom styling with icons, add CSS:
-
-```css
-/* Hide default callout icons and titles */
-.callout .callout-icon-container,
-.callout .callout-title-container {
-  display: none !important;
-}
-
-.callout {
-  margin: 1em 0 1.5em 0;
-  border-radius: 0 !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-bottom: none !important;
-  border-top: 7pt solid #a19ea936 !important;
-  padding: 0.75em 0 0 100px;
-  min-height: 95px;
-  background-size: 70px;
-  background-repeat: no-repeat;
-  background-position: 15px 0.75em;
-}
-
-.callout-note {
-  background-image: url("images/note-icon.png");
-}
-
-.callout-warning {
-  background-image: url("images/warning-icon.png");
-}
-
-.callout-tip {
-  background-image: url("images/tip-icon.png");
-}
-```
-
 ---
 
 ## Step 6: Convert Footnotes
@@ -349,9 +311,6 @@ grep -l '@[a-z]*[0-9]\{4\}' *.qmd
 ### Error: `results: 'as-is'` invalid
 **Fix**: Change to `results: asis` (no quotes, no hyphen)
 
-### Error: `cache: caching` invalid
-**Fix**: Change to `cache: true` or `cache: false`
-
 ### Error: Duplicate chunk labels
 **Fix**: Ensure each chunk has a unique label
 
@@ -360,9 +319,6 @@ grep -l '@[a-z]*[0-9]\{4\}' *.qmd
 
 ### Error: `ref-label` not supported
 **Fix**: Quarto doesn't support `ref-label`. Duplicate the code from the referenced chunk.
-
-### Error: Column type mismatch in recipes
-**Fix**: If recipe was created with different data types, recreate recipe after data transformation.
 
 ### Error: Package not found
 **Fix**: Ensure all required packages are installed. Check setup chunks.
