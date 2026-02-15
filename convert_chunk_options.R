@@ -2,6 +2,7 @@
 # This script analyzes .qmd files and reports chunks needing conversion
 
 library(stringr)
+library(cli)
 
 # Function to extract chunk headers from a file
 extract_chunk_headers <- function(file_path) {
@@ -28,6 +29,7 @@ needs_conversion <- function(header) {
   # Check if there are options after {r (more than just label)
   # Simple chunks: ```{r} or ```{r label}
   # Complex chunks: ```{r label, option=value}
+
   str_detect(header, ",|=") & !str_detect(header, "^```\\{r\\}$")
 }
 
@@ -126,12 +128,18 @@ generate_hashpipe <- function(parsed, has_fig_cap = FALSE) {
 analyze_qmd_files <- function(directory = ".") {
   qmd_files <- list.files(directory, pattern = "\\.qmd$", full.names = TRUE)
 
+  cli_h1("Analyzing chunk options")
+  cli_alert_info("Scanning {.val {length(qmd_files)}} {.file .qmd} files in {.path {directory}}")
+
   all_chunks <- do.call(rbind, lapply(qmd_files, extract_chunk_headers))
 
   if (is.null(all_chunks) || nrow(all_chunks) == 0) {
-    message("No chunks found")
+    cli_alert_warning("No R code chunks found")
     return(invisible(NULL))
   }
+
+  cli_alert_info("Found {.val {nrow(all_chunks)}} total R chunks")
+
 
   # Filter to chunks needing conversion
   all_chunks$needs_conversion <- sapply(all_chunks$header, needs_conversion)
@@ -139,23 +147,44 @@ analyze_qmd_files <- function(directory = ".") {
   to_convert <- all_chunks[all_chunks$needs_conversion, ]
 
   if (nrow(to_convert) == 0) {
-    message("All chunks already converted!")
+    cli_alert_success("All chunks already use hashpipe format!")
     return(invisible(NULL))
   }
 
-  message(sprintf("Found %d chunks needing conversion:\n", nrow(to_convert)))
+  cli_alert_warning("Found {.val {nrow(to_convert)}} chunk{?s} needing conversion")
+  cli_rule()
 
   for (i in seq_len(nrow(to_convert))) {
     row <- to_convert[i, ]
     parsed <- parse_chunk_options(row$header)
     has_fig_cap <- "fig.cap" %in% names(parsed$options)
 
-    cat(sprintf("\n--- %s (line %d) ---\n", row$file, row$line))
-    cat("Original:", row$header, "\n")
-    cat("Convert to:\n")
-    cat("```{r}\n")
+    cli_h2("{.file {row$file}} (line {.val {row$line}})")
+
+    cli_text("{.strong Original:}")
+    cli_code(row$header)
+
+    cli_text("{.strong Convert to:}")
     hashpipe <- generate_hashpipe(parsed, has_fig_cap)
-    cat(paste(hashpipe, collapse = "\n"), "\n")
+    cli_code(c("```{r}", hashpipe))
+
+    if (i < nrow(to_convert)) {
+      cli_rule()
+    }
+  }
+
+  cli_h1("Summary")
+
+  # Group by file
+  file_counts <- table(to_convert$file)
+  n_files <- length(file_counts)
+
+  cli_text("{.val {n_files}} file{?s} with chunks to convert:")
+
+  for (i in seq_along(file_counts)) {
+    n <- as.integer(file_counts[i])
+    fname <- names(file_counts)[i]
+    cli_bullets(c("*" = "{.file {fname}}: {.val {n}} chunk{?s}"))
   }
 
   invisible(to_convert)
@@ -163,6 +192,5 @@ analyze_qmd_files <- function(directory = ".") {
 
 # Run analysis
 if (interactive()) {
-  cat("Analyzing .qmd files in current directory...\n\n")
   analyze_qmd_files()
 }

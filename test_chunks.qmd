@@ -1,0 +1,29 @@
+# Test File for Chunk Conversion
+
+This is a test file with unconverted chunk options to demonstrate the `convert_chunk_options.R` script.
+
+```{r setup, include=FALSE}
+library(ggplot2)
+```
+
+```{r my-plot, fig.cap="A sample plot", fig.width=8, fig.height=6}
+plot(1:10)
+```
+
+```{r data-table, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars))
+```
+
+```{r another-figure, fig.cap="Another figure", fig.alt="Alt text here", warning=FALSE, message=FALSE}
+ggplot(mtcars, aes(mpg, hp)) + geom_point()
+```
+
+```{r}
+# This chunk is already simple - no conversion needed
+1 + 1
+```
+
+```{r simple-label}
+# This one just has a label - no conversion needed
+2 + 2
+```
